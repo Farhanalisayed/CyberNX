@@ -1,24 +1,24 @@
+// src/App.tsx
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useStore } from './store';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Jobs from './pages/Jobs';
-import PostJob from "./pages/PostJob"
+import PostJob from "./pages/PostJob";
 import JobDetails from './pages/JobDetails';
 import EmployerDashboard from './pages/EmployerDashboard';
 import JobSeekerDashboard from './pages/JobSeekerDashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const isDarkMode = useStore((state) => state.isDarkMode);
-  const currentUser = useStore((state) => state.currentUser);
-
   const loadUsersFromStorage = useStore((state) => state.loadUsersFromStorage);
 
   useEffect(() => {
-    loadUsersFromStorage(); // Load saved users on initial render
+    loadUsersFromStorage();
   }, [loadUsersFromStorage]);
 
   useEffect(() => {
@@ -34,15 +34,36 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/:id" element={<JobDetails />} />
+
+            {/* Employer */}
             <Route
               path="/employer/dashboard"
-              element={currentUser?.role === 'employer' ? <EmployerDashboard /> : <Login />}
+              element={
+                <ProtectedRoute allowedRoles={['employer']}>
+                  <EmployerDashboard />
+                </ProtectedRoute>
+              }
             />
             <Route
-              path="/jobseeker/dashboard"
-              element={currentUser?.role === 'jobseeker' ? <JobSeekerDashboard /> : <Login />}
+              path="/post-job"
+              element={
+                <ProtectedRoute allowedRoles={['employer']}>
+                  <PostJob />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/post-job" element={< PostJob/>} />
+
+            {/* Jobseeker */}
+            <Route
+              path="/jobseeker/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['jobseeker']}>
+                  <JobSeekerDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Public */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>

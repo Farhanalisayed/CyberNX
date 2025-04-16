@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { dummyJobs } from '../data'
 // import { Job } from '../types';
 
 interface Application {
@@ -40,6 +41,7 @@ interface StoreState {
   loadUsersFromStorage: () => void;
   addJob: (job: Job) => void;
   applyToJob: (jobId: string) => void;
+  logout: () => void;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -47,7 +49,7 @@ export const useStore = create<StoreState>((set, get) => ({
   currentUser: null,
   isDarkMode: false,
   applications: [],
-  jobs: [],
+  jobs: dummyJobs,
 
   toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
 
@@ -65,10 +67,25 @@ export const useStore = create<StoreState>((set, get) => ({
     set({ users: usersFromStorage });
   },
 
-  addJob: (job) => set((state) => ({
-    jobs: [...state.jobs, job],
-  })),
+  addJob: (newJob) =>
+    set((state) => ({
+      jobs: [
+        ...state.jobs,
+        {
+          ...newJob,
+          type: 'Full-time',
+          salary: '$100,000 - $120,000',
+          requirements: ['To be filled by employer'],
+          postedDate: new Date().toISOString().split('T')[0], // e.g. 2025-04-15
+        },
+      ],
+    })),
 
+    logout: () => {
+      set({ currentUser: null });
+      localStorage.removeItem('currentUser');
+    },
+  
 
   applyToJob: (jobId: string) => {
     const { currentUser, applications } = get();

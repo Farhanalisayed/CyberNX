@@ -2,21 +2,23 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, Building2, Clock } from 'lucide-react';
 import { useStore } from '../store';
-import { dummyJobs } from '../data';
+// import { dummyJobs } from '../data';
 
 function Jobs() {
   const isDarkMode = useStore((state) => state.isDarkMode);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  const filteredJobs = dummyJobs.filter(job => {
+  const jobs = useStore((state) => state.jobs);
+
+  const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          job.company.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || job.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const categories = [...new Set(dummyJobs.map(job => job.category))];
+  const categories = [...new Set(jobs.map(job => job.category))];
 
   return (
     <div className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
